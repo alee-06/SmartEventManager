@@ -4,6 +4,7 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 
 class Event
@@ -331,6 +332,38 @@ public:
 
         return (hour >= 0 && hour < 24 && minute >= 0 && minute < 60);
     }
+
+    void viewDayEvents(const string &date)
+    {
+        vector<Event> dayEvents;
+
+        // collect events for that date
+        for (auto &ev : events)
+        {
+            if (ev.date == date)
+                dayEvents.push_back(ev);
+        }
+
+        if (dayEvents.empty())
+        {
+            cout << "No events found for " << date << endl;
+            return;
+        }
+
+        // sort by time (HH:MM)
+        sort(dayEvents.begin(), dayEvents.end(), [](const Event &a, const Event &b)
+             { return a.time < b.time; });
+
+        cout << "\nEvents on " << date << ":\n";
+        for (auto &ev : dayEvents)
+        {
+            cout << "ID: " << ev.id
+                 << " | Name: " << ev.name
+                 << " | Time: " << ev.time
+                 << " | Type: " << ev.type
+                 << " | Location: " << ev.location << endl;
+        }
+    }
 };
 
 void showMenu()
@@ -342,8 +375,9 @@ void showMenu()
     cout << "4. View Events\n";
     cout << "5. Search Events\n";
     cout << "6. View Today's Events\n";
-    cout << "7. Send Reminders (Admin)\n";
-    cout << "8. Statistics (Admin)\n";
+    cout << "7. View a specific Date's Events\n";
+    cout << "8. Send Reminders (Admin)\n";
+    cout << "9. Statistics (Admin)\n";
     cout << "0. Exit\n";
     cout << "================================\n";
     cout << "Enter your choice: ";
@@ -428,9 +462,17 @@ int main()
             manager.viewTodaysEvents();
             break;
         case 7:
+        {
+            string date;
+            cout << "Enter date (DD-MM-YYYY): ";
+            cin >> date;
+            manager.viewDayEvents(date);
+            break;
+        }
+        case 8:
             cout << "Send Reminders (to be implemented)\n";
             break;
-        case 8:
+        case 9:
             cout << "Statistics (to be implemented)\n";
             break;
         case 0:
