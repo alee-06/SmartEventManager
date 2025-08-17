@@ -18,6 +18,13 @@ public:
         : id(id), name(name), date(date), time(time), type(type), location(location) {}
 };
 
+struct Attendee
+{
+    string name;
+    string email;
+};
+
+
 struct User
 {
     string username;
@@ -33,7 +40,7 @@ User login()
     cin >> username;
     cout << "Password: ";
     cin >> password;
-
+    
     // For now, hardcode accounts
     if (username == "admin" && password == "admin123")
     {
@@ -51,8 +58,9 @@ class EventManager
 {
 private:
     vector<Event> events;
+    vector<Attendee> attendees;
     int nextId = 1; // auto increment ID
-
+    
     // helper function to convert a string to lowercase
     string toLowercase(string text)
     {
@@ -148,7 +156,6 @@ public:
             {
                 cout << "Editing Event ID " << id << ":\n";
                 string input;
-                cin.ignore();
                 cout << "Enter new name (or press Enter to keep \"" << e.name << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
@@ -186,7 +193,8 @@ public:
                 cout << "Enter new type (or press Enter to keep \"" << e.type << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
-                    cout << "Enter new location (or press Enter to keep \"" << e.location << "\"): ";
+                    e.type = input;
+                cout << "Enter new location (or press Enter to keep \"" << e.location << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
                     e.location = input;
@@ -464,6 +472,50 @@ public:
              << (commonTime.empty() ? "N/A" : commonTime)
              << " (" << maxCount << " events)\n";
     }
+    void sendReminders()
+    {
+        if (attendees.empty() || events.empty())
+        {
+            cout << "No attendees or events to send reminders.\n";
+            return;
+        }
+
+        cout << "\n===== Sending Reminders =====\n";
+        for (auto &a : attendees)
+        {
+            cout << "Sending reminder to " << a.email << "...\n";
+            for (auto &e : events)
+            {
+                cout << "  Reminder: " << e.name << " on "
+                     << e.date << " at " << e.time
+                     << " in " << e.location << "\n";
+            }
+            cout << "----------------------------------\n";
+        }
+    }
+    void loadAttendees(const string &filename)
+    {
+        ifstream file(filename);
+        if (!file)
+        {
+            cout << "Could not open attendee file: " << filename << "\n";
+            return;
+        }
+        string line;
+        getline(file, line); // skip header
+        while (getline(file, line))
+        {
+            stringstream ss(line);
+            string name, email;
+            getline(ss, name, ',');
+            getline(ss, email, ',');
+            if (!name.empty() && !email.empty())
+            {
+                attendees.push_back({name, email});
+            }
+        }
+        cout << "Loaded " << attendees.size() << " attendees from " << filename << "\n";
+    }
 };
 
 void showMenu(const string &role)
@@ -494,12 +546,12 @@ int main()
     manager.loadFromFile(); // load events
     User currentUser = login();
     int choice;
-
+    
     do
     {
         showMenu(currentUser.role);
         cin >> choice;
-
+        
         if (currentUser.role == "admin")
         {
             switch (choice)
@@ -507,39 +559,39 @@ int main()
             case 1:
                 manager.viewEvents();
                 break;
-            case 2:
-            {
-                cout << "Enter keyword: ";
-                cin.ignore();
-                string keyword;
-                getline(cin, keyword);
-                manager.searchEvents(keyword);
-                break;
-            }
-            case 3:
+                case 2:
+                {
+                    cout << "Enter keyword: ";
+                    cin.ignore();
+                    string keyword;
+                    getline(cin, keyword);
+                    manager.searchEvents(keyword);
+                    break;
+                }
+                case 3:
                 manager.viewTodaysEvents();
                 break;
-            case 4:
-            {
-                string date;
-                cout << "Enter date (DD-MM-YYYY): ";
-                cin >> date;
-                manager.viewDayEvents(date);
-                break;
-            }
-            case 5:
-            {
-                cout << "Add Event\n";
-                string name, date, time, type, location;
-                cin.ignore();
-                cout << "Enter Event Name: ";
-                getline(cin, name);
-                cout << "Enter Date (DD-MM-YYYY): ";
-                getline(cin, date);
-                while (!manager.isValidDate(date))
+                case 4:
                 {
-                    cout << "Invalid! Enter again: ";
+                    string date;
+                    cout << "Enter date (DD-MM-YYYY): ";
+                    cin >> date;
+                    manager.viewDayEvents(date);
+                    break;
+                }
+                case 5:
+                {
+                    cout << "Add Event\n";
+                    string name, date, time, type, location;
+                    cin.ignore();
+                    cout << "Enter Event Name: ";
+                    getline(cin, name);
+                    cout << "Enter Date (DD-MM-YYYY): ";
                     getline(cin, date);
+                    while (!manager.isValidDate(date))
+                    {
+                        cout << "Invalid! Enter again: ";
+                        getline(cin, date);
                 }
                 cout << "Enter Time (HH:MM): ";
                 getline(cin, time);
@@ -572,8 +624,9 @@ int main()
                 break;
             }
             case 8:
-                cout << "Send Reminders (to be implemented)\n";
-                break;
+            manager.loadAttendees("emails.csv");
+            manager.sendReminders();
+            break;
             case 9:
                 manager.showStatistics();
                 break;
