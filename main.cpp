@@ -38,7 +38,12 @@ public:
         // normalize input: store name and type in lowercase
         name = toLowercase(name);
         type = toLowercase(type);
-
+        if (hasConflict(date, time))
+        {
+            string suggestion = suggestNextSlot(date, time);
+            cout << "Suggested available slot: " << suggestion << endl;
+            return;
+        }
         Event e(nextId++, name, date, time, type, location);
         events.push_back(e);
         cout << "Event added successfully!\n";
@@ -125,8 +130,17 @@ public:
                 cout << "Enter new time (or press Enter to keep \"" << e.time << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
-                    e.time = input;
-
+                {
+                    if (hasConflict(e.date, input))
+                    {
+                        string suggestion = suggestNextSlot(e.date, input);
+                        cout << "Suggested available slot: " << suggestion << endl;
+                    }
+                    else
+                    {
+                        e.time = input;
+                    }
+                }
                 cout << "Enter new type (or press Enter to keep \"" << e.type << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
@@ -138,11 +152,13 @@ public:
                     e.location = input;
 
                 cout << "Event updated successfully!\n";
+                saveToFile();
                 return;
             }
         }
         cout << "Event with ID " << id << " not found.\n";
     }
+
     void viewTodaysEvents()
     {
         // get current date
@@ -183,6 +199,7 @@ public:
             cout << "No events scheduled for today.\n";
         }
     }
+
     void saveToFile(string filename = "events.csv")
     {
         ofstream fout(filename);
@@ -227,6 +244,50 @@ public:
         }
         fin.close();
     }
+
+    bool hasConflict(string date, string time)
+    {
+        for (auto &e : events)
+        {
+            if (e.date == date && e.time == time)
+            {
+                cout << "Conflict: Event \"" << e.name
+                     << "\" already scheduled at " << time << " on " << date << ".\n";
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Suggest nearest available slot (next 30-min intervals)
+    string suggestNextSlot(string date, string time)
+    {
+        int hh, mm;
+        sscanf(time.c_str(), "%d:%d", &hh, &mm);
+
+        do
+        {
+            mm += 30;
+            if (mm >= 60)
+            {
+                mm = 0;
+                hh++;
+            }
+            if (hh >= 24)
+                break; // no slots left today
+
+            char buf[6];
+            sprintf(buf, "%02d:%02d", hh, mm);
+            string newTime = buf;
+
+            if (!hasConflict(date, newTime))
+            {
+                return newTime;
+            }
+        } while (hh < 24);
+
+        return "No available slots today.";
+    }
 };
 
 void showMenu()
@@ -251,9 +312,9 @@ int main()
     manager.loadFromFile(); // load existing events at start
     int choice;
 
-    manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); // test inputs
-    manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
-    manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
+    // manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); test inputs
+    // manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
+    // manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
 
     do
     {
