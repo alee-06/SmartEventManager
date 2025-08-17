@@ -1,6 +1,6 @@
 #include <iostream>
-#include<vector>
-#include<string>
+#include <vector>
+#include <string>
 using namespace std;
 
 class Event {
@@ -17,8 +17,20 @@ private:
     vector<Event> events;
     int nextId = 1; // auto increment ID
 
+    // helper function to convert a string to lowercase
+    string toLowercase(string text) {
+        for (char &c : text) {
+            c = tolower(c); // convert each character
+        }
+        return text;
+    }
+
 public:
     void addEvent(string name, string date, string time, string type, string location = "") {
+        // normalize input: store name and type in lowercase
+        name = toLowercase(name);
+        type = toLowercase(type);
+
         Event e(nextId++, name, date, time, type, location);
         events.push_back(e);
         cout << "Event added successfully!\n";
@@ -101,8 +113,8 @@ int main() {
                 break;
             }
             case 4:
-                cout << "View Events (to be implemented)\n";
-                manager.viewEvents();                manager.viewEvents();
+                cout << "View Events\n";
+                manager.viewEvents();
                 break;
             case 5:
                 cout << "Search Events (to be implemented)\n";
