@@ -61,9 +61,18 @@ The system allows users to **schedule, manage, and organize events**, with suppo
   * Event frequency by type
   * Most common event time slot
 
-### ❌ Features Not Implemented
+* **Mock Reminder System**
 
-* Sending email reminders to attendees
+  * Added as a **demonstration feature** (not full email integration)
+  * Uses a **CSV file (`emails.csv`)** containing attendees' emails
+  * When admin selects **“Send Reminders”**, the system **simulates sending emails** by printing messages in the console
+  * Serves as a placeholder for future integration with **SMTP libraries** or APIs (Gmail/Outlook)
+
+---
+
+## ❌ Features Not Implemented
+
+* Sending **real email reminders** to attendees
 * Optional bonus features (ASCII timeline, recurring events, undo, SQLite, timezone support, etc.)
 
 ---
@@ -92,7 +101,7 @@ The system allows users to **schedule, manage, and organize events**, with suppo
 5. Add Event
 6. Edit Event
 7. Delete Event
-8. Send Reminders (not implemented)
+8. Send Reminders (mock implementation)
 9. Statistics
 0. Exit
 ```
@@ -105,6 +114,7 @@ The system allows users to **schedule, manage, and organize events**, with suppo
 SmartEventManager/
 │── main.cpp         # Main program (all logic)
 │── events.csv       # Persistent storage for events
+│── emails.csv       # Mock attendee list for reminders
 │── README.md        # Documentation
 ```
 
@@ -162,6 +172,16 @@ Conflict: Event "Hackathon" already scheduled at 10:00 on 18-08-2025.
 Suggested available slot: 10:30
 ```
 
+### Mock Reminder Example
+
+```
+===== Sending Reminders =====
+Sending reminder to: alice@example.com
+Sending reminder to: bob@example.com
+Sending reminder to: charlie@example.com
+All reminders sent successfully (simulation).
+```
+
 ---
 
 ## 📊 Example Statistics Output
@@ -183,7 +203,7 @@ Most common event time slot: 10:00 (2 events)
 
 * **Language:** C++
 * **Concepts Used:** OOP (Classes, Structs, Encapsulation), File Handling (CSV), Vectors, STL Algorithms
-* **Storage:** CSV file (`events.csv`)
+* **Storage:** CSV file (`events.csv` + `emails.csv` for mock reminders)
 
 ---
 
@@ -192,16 +212,18 @@ Most common event time slot: 10:00 (2 events)
 * Initially faced issues with **date/time validation** – resolved by implementing helper functions `isValidDate()` and `isValidTime()`.
 * Implementing **conflict detection** required careful iteration through stored events and adding a **suggestion algorithm** for nearest available slots.
 * Ensured **modularity** by structuring functionality inside an `EventManager` class.
-* Could not implement **email reminders** due to limited library support and time constraints.
+* Added a **mock reminder system** to simulate notifications without actual email integration.
 
 ---
 
 ## ✅ Current Status
 
-This project fulfills **all core requirements** except the **event reminders** module.
+This project fulfills **all core requirements** except the **real event reminders** module.
+A **mock implementation** for reminders has been added to simulate the functionality.
+
 Future improvements may include:
 
-* Email/SMS notifications
+* Real Email/SMS notifications
 * SQLite-based backend
 * Recurring events
 * Undo functionality
