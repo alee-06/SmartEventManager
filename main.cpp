@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 class Event
@@ -40,6 +42,7 @@ public:
         Event e(nextId++, name, date, time, type, location);
         events.push_back(e);
         cout << "Event added successfully!\n";
+        saveToFile();
     }
 
     void viewEvents()
@@ -67,6 +70,7 @@ public:
             {
                 events.erase(it);
                 cout << "Event deleted successfully!\n";
+                saveToFile();
                 return;
             }
         }
@@ -179,6 +183,50 @@ public:
             cout << "No events scheduled for today.\n";
         }
     }
+    void saveToFile(string filename = "events.csv")
+    {
+        ofstream fout(filename);
+        if (!fout.is_open())
+        {
+            cout << "Error saving file!\n";
+            return;
+        }
+
+        for (auto &e : events)
+        {
+            fout << e.id << "," << e.name << "," << e.date << "," << e.time << ","
+                 << e.type << "," << e.location << "\n";
+        }
+        fout.close();
+    }
+
+    void loadFromFile(string filename = "events.csv")
+    {
+        ifstream fin(filename);
+        if (!fin.is_open())
+        {
+            return; // no file yet
+        }
+
+        events.clear();
+        string line;
+        while (getline(fin, line))
+        {
+            stringstream ss(line);
+            string id, name, date, time, type, location;
+
+            getline(ss, id, ',');
+            getline(ss, name, ',');
+            getline(ss, date, ',');
+            getline(ss, time, ',');
+            getline(ss, type, ',');
+            getline(ss, location, ',');
+
+            events.push_back(Event(stoi(id), name, date, time, type, location));
+            nextId = max(nextId, stoi(id) + 1); // maintain auto increment
+        }
+        fin.close();
+    }
 };
 
 void showMenu()
@@ -200,6 +248,7 @@ void showMenu()
 int main()
 {
     EventManager manager;
+    manager.loadFromFile(); // load existing events at start
     int choice;
 
     manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); // test inputs
