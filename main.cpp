@@ -17,6 +17,31 @@ public:
         : id(id), name(name), date(date), time(time), type(type), location(location) {}
 };
 
+struct User {
+    string username;
+    string password;
+    string role; // "admin" or "user"
+};
+
+User login() {
+    string username, password;
+    cout << "===== Login =====\n";
+    cout << "Username: ";
+    cin >> username;
+    cout << "Password: ";
+    cin >> password;
+
+    // For now, hardcode accounts
+    if (username == "admin" && password == "admin123") {
+        cout << "Welcome Admin!\n";
+        return {username, password, "admin"};
+    }
+    else {
+        cout << "Welcome User!\n";
+        return {username, password, "user"};
+    }
+}
+
 class EventManager
 {
 private:
@@ -366,121 +391,125 @@ public:
     }
 };
 
-void showMenu()
+void showMenu(const string &role)
 {
     cout << "\n===== Smart Event Manager =====\n";
-    cout << "1. Add Event\n";
-    cout << "2. Edit Event\n";
-    cout << "3. Delete Event\n";
-    cout << "4. View Events\n";
-    cout << "5. Search Events\n";
-    cout << "6. View Today's Events\n";
-    cout << "7. View a specific Date's Events\n";
-    cout << "8. Send Reminders (Admin)\n";
-    cout << "9. Statistics (Admin)\n";
+    cout << "1. View Events\n";
+    cout << "2. Search Events\n";
+    cout << "3. View Today's Events\n";
+    cout << "4. View a specific Date's Events\n";
+
+    if (role == "admin") {
+        cout << "5. Add Event\n";
+        cout << "6. Edit Event\n";
+        cout << "7. Delete Event\n";
+        cout << "8. Send Reminders\n";
+        cout << "9. Statistics\n";
+    }
+
     cout << "0. Exit\n";
     cout << "================================\n";
     cout << "Enter your choice: ";
 }
 
+
 int main()
 {
     EventManager manager;
-    manager.loadFromFile(); // load existing events at start
+    manager.loadFromFile(); // load events
+    User currentUser = login();
     int choice;
-
-    manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); // test inputs
-    manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
-    manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
 
     do
     {
-        showMenu();
+        showMenu(currentUser.role);
         cin >> choice;
 
-        switch (choice)
+        if (currentUser.role == "admin")
         {
-        case 1:
-        {
-            cout << "Add Event\n";
-            string name, date, time, type, location;
-            cout << "Enter Event Name: ";
-            cin.ignore();
-            getline(cin, name);
-            cout << "Enter Date (DD-MM-YYYY): ";
-            getline(cin, date);
-            while (!manager.isValidDate(date))
+            switch (choice)
             {
-                cout << "Invalid date format! Please enter again (DD-MM-YYYY): ";
-                getline(cin, date);
+            case 1: manager.viewEvents(); break;
+            case 2: {
+                cout << "Enter keyword: ";
+                cin.ignore();
+                string keyword;
+                getline(cin, keyword);
+                manager.searchEvents(keyword);
+                break;
             }
-            cout << "Enter Time (HH:MM): ";
-            getline(cin, time);
-            while (!manager.isValidTime(time))
+            case 3: manager.viewTodaysEvents(); break;
+            case 4: {
+                string date;
+                cout << "Enter date (DD-MM-YYYY): ";
+                cin >> date;
+                manager.viewDayEvents(date);
+                break;
+            }
+            case 5: {
+                cout << "Add Event\n";
+                string name, date, time, type, location;
+                cin.ignore();
+                cout << "Enter Event Name: "; getline(cin, name);
+                cout << "Enter Date (DD-MM-YYYY): "; getline(cin, date);
+                while (!manager.isValidDate(date)) {
+                    cout << "Invalid! Enter again: "; getline(cin, date);
+                }
+                cout << "Enter Time (HH:MM): "; getline(cin, time);
+                while (!manager.isValidTime(time)) {
+                    cout << "Invalid! Enter again: "; getline(cin, time);
+                }
+                cout << "Enter Type: "; getline(cin, type);
+                cout << "Enter Location: "; getline(cin, location);
+                manager.addEvent(name, date, time, type, location);
+                break;
+            }
+            case 6: {
+                int id;
+                cout << "Enter Event ID to edit: ";
+                cin >> id;
+                manager.editEvent(id);
+                break;
+            }
+            case 7: {
+                int id;
+                cout << "Enter Event ID to delete: ";
+                cin >> id;
+                manager.deleteEvent(id);
+                break;
+            }
+            case 8: cout << "Send Reminders (to be implemented)\n"; break;
+            case 9: cout << "Statistics (to be implemented)\n"; break;
+            case 0: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice.\n";
+            }
+        }
+        else // user mode
+        {
+            switch (choice)
             {
-                cout << "Invalid time format! Please enter again (HH:MM): ";
-                getline(cin, time);
+            case 1: manager.viewEvents(); break;
+            case 2: {
+                cout << "Enter keyword: ";
+                cin.ignore();
+                string keyword;
+                getline(cin, keyword);
+                manager.searchEvents(keyword);
+                break;
             }
-            cout << "Enter Type: ";
-            getline(cin, type);
-            cout << "Enter Location (optional): ";
-            getline(cin, location);
-            manager.addEvent(name, date, time, type, location);
-            break;
+            case 3: manager.viewTodaysEvents(); break;
+            case 4: {
+                string date;
+                cout << "Enter date (DD-MM-YYYY): ";
+                cin >> date;
+                manager.viewDayEvents(date);
+                break;
+            }
+            case 0: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice.\n";
+            }
         }
-        case 2:
-        {
-            int id;
-            cout << "Enter Event ID to edit: ";
-            cin >> id;
-            manager.editEvent(id);
-            break;
-        }
-        case 3:
-        {
-            int id;
-            cout << "Enter Event ID to delete: ";
-            cin >> id;
-            manager.deleteEvent(id);
-            break;
-        }
-        case 4:
-            cout << "View Events\n";
-            manager.viewEvents();
-            break;
-        case 5:
-        {
-            cout << "Enter keyword to search (name/type): ";
-            cin.ignore();
-            string keyword;
-            getline(cin, keyword);
-            manager.searchEvents(keyword);
-            break;
-        }
-        case 6:
-            cout << "Today's Events\n";
-            manager.viewTodaysEvents();
-            break;
-        case 7:
-        {
-            string date;
-            cout << "Enter date (DD-MM-YYYY): ";
-            cin >> date;
-            manager.viewDayEvents(date);
-            break;
-        }
-        case 8:
-            cout << "Send Reminders (to be implemented)\n";
-            break;
-        case 9:
-            cout << "Statistics (to be implemented)\n";
-            break;
-        case 0:
-            cout << "Exiting Smart Event Manager...\n";
-            break;
-        default:
-            cout << "Invalid choice. Try again.\n";
-        }
+
     } while (choice != 0);
 
     return 0;
