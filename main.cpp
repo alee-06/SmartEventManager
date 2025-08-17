@@ -1,5 +1,43 @@
 #include <iostream>
+#include<vector>
+#include<string>
 using namespace std;
+
+class Event {
+public:
+    int id;
+    string name, date, time, type, location;
+
+    Event(int id, string name, string date, string time, string type, string location = "")
+        : id(id), name(name), date(date), time(time), type(type), location(location) {}
+};
+
+class EventManager {
+private:
+    vector<Event> events;
+    int nextId = 1; // auto increment ID
+
+public:
+    void addEvent(string name, string date, string time, string type, string location = "") {
+        Event e(nextId++, name, date, time, type, location);
+        events.push_back(e);
+        cout << "✅ Event added successfully!\n";
+    }
+
+    void viewEvents() {
+        if (events.empty()) {
+            cout << "⚠ No events scheduled.\n";
+            return;
+        }
+
+        cout << "\nID | Name | Date | Time | Type | Location\n";
+        cout << "-------------------------------------------\n";
+        for (auto &e : events) {
+            cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
+                 << " | " << e.type << " | " << e.location << endl;
+        }
+    }
+};
 
 void showMenu() {
     cout << "\n===== Smart Event Manager =====\n";
@@ -17,6 +55,7 @@ void showMenu() {
 }
 
 int main() {
+    EventManager manager;
     int choice;
 
     do {
@@ -24,9 +63,22 @@ int main() {
         cin >> choice;
 
         switch (choice) {
-            case 1:
-                cout << "Add Event (to be implemented)\n";
+            case 1:{
+                cout << "Add Event\n";
+                string name, date, time, type, location;
+                cout << "Enter Event Name: ";
+                cin.ignore(); getline(cin, name);
+                cout << "Enter Date (DD-MM-YYYY): ";
+                getline(cin, date);
+                cout << "Enter Time (HH:MM): ";
+                getline(cin, time);
+                cout << "Enter Type: ";
+                getline(cin, type);
+                cout << "Enter Location (optional): ";
+                getline(cin, location);
+                manager.addEvent(name, date, time, type, location);
                 break;
+            }
             case 2:
                 cout << "Edit Event (to be implemented)\n";
                 break;
@@ -35,6 +87,7 @@ int main() {
                 break;
             case 4:
                 cout << "View Events (to be implemented)\n";
+                manager.viewEvents();                manager.viewEvents();
                 break;
             case 5:
                 cout << "Search Events (to be implemented)\n";
