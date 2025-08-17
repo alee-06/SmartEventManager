@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <map>
 using namespace std;
 
 class Event
@@ -17,13 +18,15 @@ public:
         : id(id), name(name), date(date), time(time), type(type), location(location) {}
 };
 
-struct User {
+struct User
+{
     string username;
     string password;
     string role; // "admin" or "user"
 };
 
-User login() {
+User login()
+{
     string username, password;
     cout << "===== Login =====\n";
     cout << "Username: ";
@@ -32,11 +35,13 @@ User login() {
     cin >> password;
 
     // For now, hardcode accounts
-    if (username == "admin" && password == "admin123") {
+    if (username == "admin" && password == "admin123")
+    {
         cout << "Welcome Admin!\n";
         return {username, password, "admin"};
     }
-    else {
+    else
+    {
         cout << "Welcome User!\n";
         return {username, password, "user"};
     }
@@ -389,6 +394,77 @@ public:
                  << " | Location: " << ev.location << endl;
         }
     }
+    void showStatistics()
+    {
+        if (events.empty())
+        {
+            cout << "No events available for statistics.\n";
+            return;
+        }
+
+        cout << "\n===== Event Statistics =====\n";
+
+        // 1. Total events per week (just count last 7 days from today)
+        time_t now = time(0);
+        tm *ltm = localtime(&now);
+
+        int todayDay = ltm->tm_mday;
+        int todayMonth = ltm->tm_mon + 1;
+        int todayYear = 1900 + ltm->tm_year;
+
+        auto parseDate = [](const string &date)
+        {
+            int d, m, y;
+            sscanf(date.c_str(), "%d-%d-%d", &d, &m, &y);
+            return tm{0, 0, 0, d, m - 1, y - 1900};
+        };
+
+        int weeklyCount = 0;
+        for (auto &e : events)
+        {
+            tm eventDate = parseDate(e.date);
+            time_t eventTime = mktime(&eventDate);
+            double diffDays = difftime(now, eventTime) / (60 * 60 * 24);
+            if (diffDays >= 0 && diffDays <= 7)
+            {
+                weeklyCount++;
+            }
+        }
+        cout << "Events in last 7 days: " << weeklyCount << "\n";
+
+        // 2. Frequency by type
+        map<string, int> typeCount;
+        for (auto &e : events)
+        {
+            typeCount[e.type]++;
+        }
+        cout << "\nEvents by Type:\n";
+        for (auto &p : typeCount)
+        {
+            cout << "  " << p.first << ": " << p.second << "\n";
+        }
+
+        // 3. Most common time slot
+        map<string, int> timeCount;
+        for (auto &e : events)
+        {
+            timeCount[e.time]++;
+        }
+
+        string commonTime = "";
+        int maxCount = 0;
+        for (auto &p : timeCount)
+        {
+            if (p.second > maxCount)
+            {
+                maxCount = p.second;
+                commonTime = p.first;
+            }
+        }
+        cout << "\nMost common event time slot: "
+             << (commonTime.empty() ? "N/A" : commonTime)
+             << " (" << maxCount << " events)\n";
+    }
 };
 
 void showMenu(const string &role)
@@ -399,7 +475,8 @@ void showMenu(const string &role)
     cout << "3. View Today's Events\n";
     cout << "4. View a specific Date's Events\n";
 
-    if (role == "admin") {
+    if (role == "admin")
+    {
         cout << "5. Add Event\n";
         cout << "6. Edit Event\n";
         cout << "7. Delete Event\n";
@@ -411,7 +488,6 @@ void showMenu(const string &role)
     cout << "================================\n";
     cout << "Enter your choice: ";
 }
-
 
 int main()
 {
@@ -429,8 +505,11 @@ int main()
         {
             switch (choice)
             {
-            case 1: manager.viewEvents(); break;
-            case 2: {
+            case 1:
+                manager.viewEvents();
+                break;
+            case 2:
+            {
                 cout << "Enter keyword: ";
                 cin.ignore();
                 string keyword;
@@ -438,58 +517,83 @@ int main()
                 manager.searchEvents(keyword);
                 break;
             }
-            case 3: manager.viewTodaysEvents(); break;
-            case 4: {
+            case 3:
+                manager.viewTodaysEvents();
+                break;
+            case 4:
+            {
                 string date;
                 cout << "Enter date (DD-MM-YYYY): ";
                 cin >> date;
                 manager.viewDayEvents(date);
                 break;
             }
-            case 5: {
+            case 5:
+            {
                 cout << "Add Event\n";
                 string name, date, time, type, location;
                 cin.ignore();
-                cout << "Enter Event Name: "; getline(cin, name);
-                cout << "Enter Date (DD-MM-YYYY): "; getline(cin, date);
-                while (!manager.isValidDate(date)) {
-                    cout << "Invalid! Enter again: "; getline(cin, date);
+                cout << "Enter Event Name: ";
+                getline(cin, name);
+                cout << "Enter Date (DD-MM-YYYY): ";
+                getline(cin, date);
+                while (!manager.isValidDate(date))
+                {
+                    cout << "Invalid! Enter again: ";
+                    getline(cin, date);
                 }
-                cout << "Enter Time (HH:MM): "; getline(cin, time);
-                while (!manager.isValidTime(time)) {
-                    cout << "Invalid! Enter again: "; getline(cin, time);
+                cout << "Enter Time (HH:MM): ";
+                getline(cin, time);
+                while (!manager.isValidTime(time))
+                {
+                    cout << "Invalid! Enter again: ";
+                    getline(cin, time);
                 }
-                cout << "Enter Type: "; getline(cin, type);
-                cout << "Enter Location: "; getline(cin, location);
+                cout << "Enter Type: ";
+                getline(cin, type);
+                cout << "Enter Location: ";
+                getline(cin, location);
                 manager.addEvent(name, date, time, type, location);
                 break;
             }
-            case 6: {
+            case 6:
+            {
                 int id;
                 cout << "Enter Event ID to edit: ";
                 cin >> id;
                 manager.editEvent(id);
                 break;
             }
-            case 7: {
+            case 7:
+            {
                 int id;
                 cout << "Enter Event ID to delete: ";
                 cin >> id;
                 manager.deleteEvent(id);
                 break;
             }
-            case 8: cout << "Send Reminders (to be implemented)\n"; break;
-            case 9: cout << "Statistics (to be implemented)\n"; break;
-            case 0: cout << "Exiting...\n"; break;
-            default: cout << "Invalid choice.\n";
+            case 8:
+                cout << "Send Reminders (to be implemented)\n";
+                break;
+            case 9:
+                manager.showStatistics();
+                break;
+            case 0:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice.\n";
             }
         }
         else // user mode
         {
             switch (choice)
             {
-            case 1: manager.viewEvents(); break;
-            case 2: {
+            case 1:
+                manager.viewEvents();
+                break;
+            case 2:
+            {
                 cout << "Enter keyword: ";
                 cin.ignore();
                 string keyword;
@@ -497,16 +601,22 @@ int main()
                 manager.searchEvents(keyword);
                 break;
             }
-            case 3: manager.viewTodaysEvents(); break;
-            case 4: {
+            case 3:
+                manager.viewTodaysEvents();
+                break;
+            case 4:
+            {
                 string date;
                 cout << "Enter date (DD-MM-YYYY): ";
                 cin >> date;
                 manager.viewDayEvents(date);
                 break;
             }
-            case 0: cout << "Exiting...\n"; break;
-            default: cout << "Invalid choice.\n";
+            case 0:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice.\n";
             }
         }
 
