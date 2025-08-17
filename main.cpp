@@ -60,6 +60,26 @@ public:
         }
         cout << "Event with ID " << id << " not found.\n";
     }
+    void searchEvents(string keyword) {
+        keyword = toLowercase(keyword); // normalize search keyword
+        bool found = false;
+
+        cout << "\nSearch Results:\n";
+        cout << "ID | Name | Date | Time | Type | Location\n";
+        cout << "-------------------------------------------\n";
+
+        for (auto &e : events) {
+            if (e.name.find(keyword) != string::npos || e.type.find(keyword) != string::npos) {
+                cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
+                     << " | " << e.type << " | " << e.location << endl;
+                found = true;
+            }
+        }
+
+        if (!found) {
+            cout << "No events found matching \"" << keyword << "\".\n";
+        }
+    }    
 };
 
 void showMenu() {
@@ -116,9 +136,14 @@ int main() {
                 cout << "View Events\n";
                 manager.viewEvents();
                 break;
-            case 5:
-                cout << "Search Events (to be implemented)\n";
+            case 5: {
+                cout << "Enter keyword to search (name/type): ";
+                cin.ignore();
+                string keyword;
+                getline(cin, keyword);
+                manager.searchEvents(keyword);
                 break;
+            }
             case 6:
                 cout << "Today's Events (to be implemented)\n";
                 break;
