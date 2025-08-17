@@ -1,0 +1,42 @@
+# Compiled source files
+*.exe
+*.out
+*.app
+
+# Object files
+*.o
+*.obj
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.dylib
+
+# Debug/Release folders (common in IDEs)
+Debug/
+Release/
+build/
+cmake-build-*/
+
+# IDE files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj*
+*.xcodeproj
+*.idea/
+*.vscode/
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
