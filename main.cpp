@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <ctime>
 using namespace std;
 
 class Event
@@ -71,6 +72,7 @@ public:
         }
         cout << "Event with ID " << id << " not found.\n";
     }
+
     void searchEvents(string keyword)
     {
         keyword = toLowercase(keyword); // normalize search keyword
@@ -95,6 +97,7 @@ public:
             cout << "No events found matching \"" << keyword << "\".\n";
         }
     }
+
     void editEvent(int id)
     {
         for (auto &e : events)
@@ -136,6 +139,46 @@ public:
         }
         cout << "Event with ID " << id << " not found.\n";
     }
+    void viewTodaysEvents()
+    {
+        // get current date
+        time_t now = time(0);
+        tm *ltm = localtime(&now);
+
+        // convert day and month to strings
+        string day = to_string(ltm->tm_mday);
+        string month = to_string(ltm->tm_mon + 1);
+        string year = to_string(1900 + ltm->tm_year);
+
+        // pad with leading zero if length == 1
+        if (day.size() == 1)
+            day = "0" + day;
+        if (month.size() == 1)
+            month = "0" + month;
+
+        // final format: dd-mm-yyyy
+        string today = day + "-" + month + "-" + year;
+
+        bool found = false;
+        cout << "\nToday's Events (" << today << "):\n";
+        cout << "ID | Name | Date | Time | Type | Location\n";
+        cout << "-------------------------------------------\n";
+
+        for (auto &e : events)
+        {
+            if (e.date == today)
+            {
+                cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
+                     << " | " << e.type << " | " << e.location << endl;
+                found = true;
+            }
+        }
+
+        if (!found)
+        {
+            cout << "No events scheduled for today.\n";
+        }
+    }
 };
 
 void showMenu()
@@ -159,7 +202,7 @@ int main()
     EventManager manager;
     int choice;
 
-    manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room");     //test inputs
+    manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); // test inputs
     manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
     manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
 
@@ -188,7 +231,8 @@ int main()
             manager.addEvent(name, date, time, type, location);
             break;
         }
-        case 2: {
+        case 2:
+        {
             int id;
             cout << "Enter Event ID to edit: ";
             cin >> id;
@@ -217,7 +261,8 @@ int main()
             break;
         }
         case 6:
-            cout << "Today's Events (to be implemented)\n";
+            cout << "Today's Events\n";
+            manager.viewTodaysEvents();
             break;
         case 7:
             cout << "Send Reminders (to be implemented)\n";
