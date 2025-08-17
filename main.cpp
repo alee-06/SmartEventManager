@@ -66,9 +66,6 @@ private:
 public:
     void addEvent(string name, string date, string time, string type, string location = "")
     {
-        // normalize input: store name and type in lowercase
-        name = toLowercase(name);
-        type = toLowercase(type);
         if (hasConflict(date, time))
         {
             string suggestion = suggestNextSlot(date, time);
@@ -115,7 +112,7 @@ public:
 
     void searchEvents(string keyword)
     {
-        keyword = toLowercase(keyword); // normalize search keyword
+        string lowerKeyword = toLowercase(keyword); // normalize search keyword
         bool found = false;
 
         cout << "\nSearch Results:\n";
@@ -124,11 +121,16 @@ public:
 
         for (auto &e : events)
         {
-            if (e.name.find(keyword) != string::npos || e.type.find(keyword) != string::npos)
+            string lowerName = toLowercase(e.name);
+            string lowerType = toLowercase(e.type);
+            if (toLowercase(e.name).find(lowerKeyword) != string::npos ||
+                toLowercase(e.type).find(lowerKeyword) != string::npos)
             {
-                cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
-                     << " | " << e.type << " | " << e.location << endl;
-                found = true;
+                {
+                    cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
+                         << " | " << e.type << " | " << e.location << endl;
+                    found = true;
+                }
             }
         }
 
@@ -146,12 +148,11 @@ public:
             {
                 cout << "Editing Event ID " << id << ":\n";
                 string input;
-
+                cin.ignore();
                 cout << "Enter new name (or press Enter to keep \"" << e.name << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
-                    e.name = toLowercase(input);
-
+                    e.name = input;
                 cout << "Enter new date (or press Enter to keep \"" << e.date << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
@@ -185,9 +186,7 @@ public:
                 cout << "Enter new type (or press Enter to keep \"" << e.type << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
-                    e.type = toLowercase(input);
-
-                cout << "Enter new location (or press Enter to keep \"" << e.location << "\"): ";
+                    cout << "Enter new location (or press Enter to keep \"" << e.location << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
                     e.location = input;
