@@ -117,7 +117,6 @@ public:
                 string input;
 
                 cout << "Enter new name (or press Enter to keep \"" << e.name << "\"): ";
-                cin.ignore();
                 getline(cin, input);
                 if (!input.empty())
                     e.name = toLowercase(input);
@@ -125,12 +124,23 @@ public:
                 cout << "Enter new date (or press Enter to keep \"" << e.date << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
+                {
+                    while (!isValidDate(input))
+                    {
+                        cout << "Invalid date format! Please enter again (DD-MM-YYYY): ";
+                        getline(cin, input);
+                    }
                     e.date = input;
-
+                }
                 cout << "Enter new time (or press Enter to keep \"" << e.time << "\"): ";
                 getline(cin, input);
                 if (!input.empty())
                 {
+                    while (!isValidTime(input))
+                    {
+                        cout << "Invalid time format! Please enter again (HH:MM): ";
+                        getline(cin, input);
+                    }
                     if (hasConflict(e.date, input))
                     {
                         string suggestion = suggestNextSlot(e.date, input);
@@ -288,6 +298,39 @@ public:
 
         return "No available slots today.";
     }
+    bool isValidDate(const string &date)
+    {
+        if (date.size() != 10 || date[2] != '-' || date[5] != '-')
+            return false;
+
+        int day = stoi(date.substr(0, 2));
+        int month = stoi(date.substr(3, 2));
+        int year = stoi(date.substr(6, 4));
+
+        if (month < 1 || month > 12)
+            return false;
+
+        int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        // leap year check
+        if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
+            daysInMonth[1] = 29;
+
+        if (day < 1 || day > daysInMonth[month - 1])
+            return false;
+
+        return true;
+    }
+
+    bool isValidTime(const string &time)
+    {
+        if (time.size() != 5 || time[2] != ':')
+            return false;
+
+        int hour = stoi(time.substr(0, 2));
+        int minute = stoi(time.substr(3, 2));
+
+        return (hour >= 0 && hour < 24 && minute >= 0 && minute < 60);
+    }
 };
 
 void showMenu()
@@ -312,9 +355,9 @@ int main()
     manager.loadFromFile(); // load existing events at start
     int choice;
 
-    // manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); test inputs
-    // manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
-    // manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
+    manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room"); // test inputs
+    manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
+    manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
 
     do
     {
@@ -332,8 +375,18 @@ int main()
             getline(cin, name);
             cout << "Enter Date (DD-MM-YYYY): ";
             getline(cin, date);
+            while (!manager.isValidDate(date))
+            {
+                cout << "Invalid date format! Please enter again (DD-MM-YYYY): ";
+                getline(cin, date);
+            }
             cout << "Enter Time (HH:MM): ";
             getline(cin, time);
+            while (!manager.isValidTime(time))
+            {
+                cout << "Invalid time format! Please enter again (HH:MM): ";
+                getline(cin, time);
+            }
             cout << "Enter Type: ";
             getline(cin, type);
             cout << "Enter Location (optional): ";
