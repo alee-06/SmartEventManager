@@ -3,7 +3,8 @@
 #include <string>
 using namespace std;
 
-class Event {
+class Event
+{
 public:
     int id;
     string name, date, time, type, location;
@@ -12,21 +13,25 @@ public:
         : id(id), name(name), date(date), time(time), type(type), location(location) {}
 };
 
-class EventManager {
+class EventManager
+{
 private:
     vector<Event> events;
     int nextId = 1; // auto increment ID
 
     // helper function to convert a string to lowercase
-    string toLowercase(string text) {
-        for (char &c : text) {
+    string toLowercase(string text)
+    {
+        for (char &c : text)
+        {
             c = tolower(c); // convert each character
         }
         return text;
     }
 
 public:
-    void addEvent(string name, string date, string time, string type, string location = "") {
+    void addEvent(string name, string date, string time, string type, string location = "")
+    {
         // normalize input: store name and type in lowercase
         name = toLowercase(name);
         type = toLowercase(type);
@@ -36,23 +41,29 @@ public:
         cout << "Event added successfully!\n";
     }
 
-    void viewEvents() {
-        if (events.empty()) {
+    void viewEvents()
+    {
+        if (events.empty())
+        {
             cout << "No events scheduled.\n";
             return;
         }
 
         cout << "\nID | Name | Date | Time | Type | Location\n";
         cout << "-------------------------------------------\n";
-        for (auto &e : events) {
+        for (auto &e : events)
+        {
             cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
                  << " | " << e.type << " | " << e.location << endl;
         }
     }
 
-    void deleteEvent(int id) {
-        for (auto it = events.begin(); it != events.end(); ++it) {
-            if (it->id == id) {
+    void deleteEvent(int id)
+    {
+        for (auto it = events.begin(); it != events.end(); ++it)
+        {
+            if (it->id == id)
+            {
                 events.erase(it);
                 cout << "Event deleted successfully!\n";
                 return;
@@ -60,7 +71,8 @@ public:
         }
         cout << "Event with ID " << id << " not found.\n";
     }
-    void searchEvents(string keyword) {
+    void searchEvents(string keyword)
+    {
         keyword = toLowercase(keyword); // normalize search keyword
         bool found = false;
 
@@ -68,21 +80,66 @@ public:
         cout << "ID | Name | Date | Time | Type | Location\n";
         cout << "-------------------------------------------\n";
 
-        for (auto &e : events) {
-            if (e.name.find(keyword) != string::npos || e.type.find(keyword) != string::npos) {
+        for (auto &e : events)
+        {
+            if (e.name.find(keyword) != string::npos || e.type.find(keyword) != string::npos)
+            {
                 cout << e.id << " | " << e.name << " | " << e.date << " " << e.time
                      << " | " << e.type << " | " << e.location << endl;
                 found = true;
             }
         }
 
-        if (!found) {
+        if (!found)
+        {
             cout << "No events found matching \"" << keyword << "\".\n";
         }
-    }    
+    }
+    void editEvent(int id)
+    {
+        for (auto &e : events)
+        {
+            if (e.id == id)
+            {
+                cout << "Editing Event ID " << id << ":\n";
+                string input;
+
+                cout << "Enter new name (or press Enter to keep \"" << e.name << "\"): ";
+                cin.ignore();
+                getline(cin, input);
+                if (!input.empty())
+                    e.name = toLowercase(input);
+
+                cout << "Enter new date (or press Enter to keep \"" << e.date << "\"): ";
+                getline(cin, input);
+                if (!input.empty())
+                    e.date = input;
+
+                cout << "Enter new time (or press Enter to keep \"" << e.time << "\"): ";
+                getline(cin, input);
+                if (!input.empty())
+                    e.time = input;
+
+                cout << "Enter new type (or press Enter to keep \"" << e.type << "\"): ";
+                getline(cin, input);
+                if (!input.empty())
+                    e.type = toLowercase(input);
+
+                cout << "Enter new location (or press Enter to keep \"" << e.location << "\"): ";
+                getline(cin, input);
+                if (!input.empty())
+                    e.location = input;
+
+                cout << "Event updated successfully!\n";
+                return;
+            }
+        }
+        cout << "Event with ID " << id << " not found.\n";
+    }
 };
 
-void showMenu() {
+void showMenu()
+{
     cout << "\n===== Smart Event Manager =====\n";
     cout << "1. Add Event\n";
     cout << "2. Edit Event\n";
@@ -97,67 +154,82 @@ void showMenu() {
     cout << "Enter your choice: ";
 }
 
-int main() {
+int main()
+{
     EventManager manager;
     int choice;
 
-    do {
+    manager.addEvent("Team Meeting", "17-08-2025", "10:00", "Work", "Conference Room");     //test inputs
+    manager.addEvent("Friend's Birthday", "18-08-2025", "19:00", "Personal", "Cafe");
+    manager.addEvent("Hackathon", "25-08-2025", "09:00", "Competition", "Tech Park");
+
+    do
+    {
         showMenu();
         cin >> choice;
 
-        switch (choice) {
-            case 1: {
-                cout << "Add Event\n";
-                string name, date, time, type, location;
-                cout << "Enter Event Name: ";
-                cin.ignore(); getline(cin, name);
-                cout << "Enter Date (DD-MM-YYYY): ";
-                getline(cin, date);
-                cout << "Enter Time (HH:MM): ";
-                getline(cin, time);
-                cout << "Enter Type: ";
-                getline(cin, type);
-                cout << "Enter Location (optional): ";
-                getline(cin, location);
-                manager.addEvent(name, date, time, type, location);
-                break;
-            }
-            case 2:
-                cout << "Edit Event (to be implemented)\n";
-                break;
-            case 3: {
-                int id;
-                cout << "Enter Event ID to delete: ";
-                cin >> id;
-                manager.deleteEvent(id);
-                break;
-            }
-            case 4:
-                cout << "View Events\n";
-                manager.viewEvents();
-                break;
-            case 5: {
-                cout << "Enter keyword to search (name/type): ";
-                cin.ignore();
-                string keyword;
-                getline(cin, keyword);
-                manager.searchEvents(keyword);
-                break;
-            }
-            case 6:
-                cout << "Today's Events (to be implemented)\n";
-                break;
-            case 7:
-                cout << "Send Reminders (to be implemented)\n";
-                break;
-            case 8:
-                cout << "Statistics (to be implemented)\n";
-                break;
-            case 0:
-                cout << "Exiting Smart Event Manager...\n";
-                break;
-            default:
-                cout << "Invalid choice. Try again.\n";
+        switch (choice)
+        {
+        case 1:
+        {
+            cout << "Add Event\n";
+            string name, date, time, type, location;
+            cout << "Enter Event Name: ";
+            cin.ignore();
+            getline(cin, name);
+            cout << "Enter Date (DD-MM-YYYY): ";
+            getline(cin, date);
+            cout << "Enter Time (HH:MM): ";
+            getline(cin, time);
+            cout << "Enter Type: ";
+            getline(cin, type);
+            cout << "Enter Location (optional): ";
+            getline(cin, location);
+            manager.addEvent(name, date, time, type, location);
+            break;
+        }
+        case 2: {
+            int id;
+            cout << "Enter Event ID to edit: ";
+            cin >> id;
+            manager.editEvent(id);
+            break;
+        }
+        case 3:
+        {
+            int id;
+            cout << "Enter Event ID to delete: ";
+            cin >> id;
+            manager.deleteEvent(id);
+            break;
+        }
+        case 4:
+            cout << "View Events\n";
+            manager.viewEvents();
+            break;
+        case 5:
+        {
+            cout << "Enter keyword to search (name/type): ";
+            cin.ignore();
+            string keyword;
+            getline(cin, keyword);
+            manager.searchEvents(keyword);
+            break;
+        }
+        case 6:
+            cout << "Today's Events (to be implemented)\n";
+            break;
+        case 7:
+            cout << "Send Reminders (to be implemented)\n";
+            break;
+        case 8:
+            cout << "Statistics (to be implemented)\n";
+            break;
+        case 0:
+            cout << "Exiting Smart Event Manager...\n";
+            break;
+        default:
+            cout << "Invalid choice. Try again.\n";
         }
     } while (choice != 0);
 
