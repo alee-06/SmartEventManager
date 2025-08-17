@@ -1,80 +1,213 @@
 # Smart Event Manager (CLI-Based)
 
-A Command-Line Interface (CLI) Event Manager built in C++ using Object-Oriented Programming (OOP) and file handling concepts.
+A **Command-Line Interface (CLI) Event Manager** built in **C++** using **Object-Oriented Programming (OOP)** and **file handling concepts**.
 This project was developed as part of the ACM Technical Team Recruitment Task.
 
-The system allows users to schedule, manage, and organize events, with support for conflict detection, editing, searching, and admin-only controls. Events are stored persistently in a CSV file for reuse across sessions.
+The system allows users to **schedule, manage, and organize events**, with support for **conflict detection, editing, searching, and admin-only controls**. Events are stored persistently in a CSV file for reuse across sessions.
 
-🚀 Features Implemented
-✅ Core Features
+---
 
-Add Event
+## 🚀 Features Implemented
 
-Inputs: Name, Date (DD-MM-YYYY), Time (HH:MM), Type, Location (optional)
+### ✅ Core Features
 
-Date & Time validation
+* **Add Event**
 
-Prevents scheduling conflicts
+  * Inputs: Name, Date (`DD-MM-YYYY`), Time (`HH:MM`), Type, Location (optional)
+  * Date & Time validation
+  * Prevents scheduling conflicts
+  * Suggests next available slot if conflict detected
 
-Suggests next available slot if conflict detected
+* **Edit Event**
 
-Edit Event
+  * Modify any field (name, date, time, type, location) by **Event ID**
+  * Validates input and checks for conflicts when changing date/time
 
-Modify any field (name, date, time, type, location) by Event ID
+* **Delete Event**
 
-Validates input and checks for conflicts when changing date/time
+  * Remove an event using its **Event ID**
 
-Delete Event
+* **View Events**
 
-Remove an event using its Event ID
+  * **All Events** (chronological order)
+  * **Day View**: Display events for a specific date
+  * **Today’s Events**: Show events for the current system date
 
-View Events
+* **Search Events**
 
-All Events (chronological order)
+  * Search by keyword (**name/type**) – case-insensitive
 
-Day View: Display events for a specific date
+* **Conflict Detection**
 
-Today’s Events: Show events for the current system date
+  * Alerts when an event already exists at the same date/time
+  * Suggests nearest available **30-minute time slot**
 
-Search Events
+* **Persistent Storage**
 
-Search by keyword (name/type) – case-insensitive
+  * Events stored in **CSV (`events.csv`)** for persistence
+  * Automatically loads/saves events between sessions
 
-Conflict Detection
+* **Admin Control**
 
-Alerts when an event already exists at the same date/time
+  * Admin login (`admin/admin123`)
+  * Admin has exclusive access to:
 
-Suggests nearest available 30-minute time slot
+    * Add/Edit/Delete events
+    * View Statistics (event analytics)
 
-Persistent Storage
+* **Statistics Module**
 
-Events stored in CSV (events.csv) for persistence
+  * Events in the last 7 days
+  * Event frequency by type
+  * Most common event time slot
 
-Automatically loads/saves events between sessions
+### ❌ Features Not Implemented
 
-Admin Control
+* Sending email reminders to attendees
+* Optional bonus features (ASCII timeline, recurring events, undo, SQLite, timezone support, etc.)
 
-Admin login (admin/admin123)
+---
 
-Admin has exclusive access to:
+## 🖥️ CLI Menu
 
-Add/Edit/Delete events
+### User Menu
 
-View Statistics (event analytics)
+```
+===== Smart Event Manager =====
+1. View Events
+2. Search Events
+3. View Today's Events
+4. View a specific Date's Events
+0. Exit
+```
 
-Statistics Module
+### Admin Menu
 
-Events in the last 7 days
+```
+===== Smart Event Manager =====
+1. View Events
+2. Search Events
+3. View Today's Events
+4. View a specific Date's Events
+5. Add Event
+6. Edit Event
+7. Delete Event
+8. Send Reminders (not implemented)
+9. Statistics
+0. Exit
+```
 
-Event frequency by type
+---
 
-Most common event time slot
+## 📂 Project Structure
 
-❌ Features Not Implemented
+```
+SmartEventManager/
+│── main.cpp         # Main program (all logic)
+│── events.csv       # Persistent storage for events
+│── README.md        # Documentation
+```
 
-Sending email reminders to attendees
+---
 
-Optional bonus features (ASCII timeline, recurring events, undo, SQLite, timezone support, etc.)
+## ⚡ How to Run
 
-🖥️ CLI Menu
-User Menu
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/alee-06/SmartEventManager.git
+cd SmartEventManager
+```
+
+### 2. Compile the program
+
+```bash
+g++ main.cpp -o SmartEventManager
+```
+
+### 3. Run the executable
+
+```bash
+./SmartEventManager
+```
+
+---
+
+## 📌 Sample Usage
+
+### Login
+
+```
+===== Login =====
+Username: admin
+Password: admin123
+Welcome Admin!
+```
+
+### Add Event (Admin only)
+
+```
+Enter Event Name: Hackathon
+Enter Date (DD-MM-YYYY): 18-08-2025
+Enter Time (HH:MM): 10:00
+Enter Type: Workshop
+Enter Location: Lab 1
+Event added successfully!
+```
+
+### Conflict Detection Example
+
+```
+Conflict: Event "Hackathon" already scheduled at 10:00 on 18-08-2025.
+Suggested available slot: 10:30
+```
+
+---
+
+## 📊 Example Statistics Output
+
+```
+===== Event Statistics =====
+Events in last 7 days: 3
+
+Events by Type:
+  Workshop: 2
+  Meeting: 1
+
+Most common event time slot: 10:00 (2 events)
+```
+
+---
+
+## 🛠️ Tech Stack
+
+* **Language:** C++
+* **Concepts Used:** OOP (Classes, Structs, Encapsulation), File Handling (CSV), Vectors, STL Algorithms
+* **Storage:** CSV file (`events.csv`)
+
+---
+
+## 📌 Notes & Challenges
+
+* Initially faced issues with **date/time validation** – resolved by implementing helper functions `isValidDate()` and `isValidTime()`.
+* Implementing **conflict detection** required careful iteration through stored events and adding a **suggestion algorithm** for nearest available slots.
+* Ensured **modularity** by structuring functionality inside an `EventManager` class.
+* Could not implement **email reminders** due to limited library support and time constraints.
+
+---
+
+## ✅ Current Status
+
+This project fulfills **all core requirements** except the **event reminders** module.
+Future improvements may include:
+
+* Email/SMS notifications
+* SQLite-based backend
+* Recurring events
+* Undo functionality
+
+---
+
+✨ **Author:** [Ali (alee-06)](https://github.com/alee-06)
+
+---
